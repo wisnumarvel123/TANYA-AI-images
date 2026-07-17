@@ -1,0 +1,16 @@
+{
+  "name": "tanya-ai-image-bot",
+  "version": "1.0.0",
+  "description": "Telegram Bot untuk generate gambar AI dengan menu command lengkap",
+  "main": "bot.js",
+  "scripts": {
+    "start": "node bot.js"
+  },
+  "dependencies": {
+    "node-telegram-bot-api": "^0.64.0",
+    "dotenv": "^16.4.5"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

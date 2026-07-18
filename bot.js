@@ -1,40 +1,59 @@
-msg.chat.idrequire('dotenv').config();
+require('dotenv').config();
+const express = require('express');
 const TelegramBot = require('node-telegram-bot-api');
-const bot = new TelegramBot(process.env.TELEGRAM_TOKEN, {polling: true});
+
+const app = express();
+app.use(express.json());
+
+const token = process.env.TELEGRAM_TOKEN;
+const bot = new TelegramBot(token);
 const userSession = {};
 
-// Set Menu Commands Telegram
+// URL Render akan otomatis mengisi variabel ini
+const WEBHOOK_URL = process.env.RENDER_EXTERNAL_URL;
+bot.setWebHook(`${WEBHOOK_URL}/bot${token}`);
+
+app.post(`/bot${token}`, (req, res) => {
+  bot.processUpdate(req.body);
+  res.sendStatus(200);
+});
+
+app.get('/', (req, res) => {
+  res.send('Tanya AI Image Bot Aktif dan Siap Digunakan');
+});
+
+// Menu Perintah Telegram
 bot.setMyCommands([
-  {command: 'start', description: 'Mulai bot & lihat panduan'},
-  {command: 'help', description: 'Bantuan penggunaan bot'},
-  {command: 'about', description: 'Tentang Tanya AI Image Bot'},
-  {command: 'website', description: 'Kunjungi website resmi'}
+  {command: 'start', description: 'Memulai bot & panduan penggunaan'},
+  {command: 'help', description: 'Bantuan lengkap penggunaan bot'},
+  {command: 'about', description: 'Informasi tentang Tanya AI Image Bot'},
+  {command: 'website', description: 'Kunjungi website resmi kami'}
 ]);
 
 bot.onText(/\/start/, (msg) => {
   bot.sendMessage(msg.chat.id,
     `Selamat datang di Tanya AI Image Bot 👋\n\n` +
-    `Saya akan membantu Anda membuat gambar AI dari teks.\n\n` +
-    `*Cara pakai:*\n` +
-    `1. Kirim deskripsi gambar yang Anda inginkan\n` +
-    `2. Pilih ukuran, style, dan model AI\n` +
-    `3. Tunggu gambar Anda jadi\n\n` +
-    `Contoh: pemandangan danau di pagi hari\n\n` +
-    `Ketik /help untuk bantuan lengkap.\n` +
-    `Website: https://tanya-ai-images.netlify.app/`,
+    `Perkenalkan, saya adalah asisten yang akan membantu Anda membuat gambar berbasis AI dari deskripsi teks.\n\n` +
+    `*Cara Penggunaan:*\n` +
+    `1. Silakan kirimkan deskripsi gambar yang Anda inginkan\n` +
+    `2. Pilih ukuran, style, dan model AI yang tersedia\n` +
+    `3. Mohon tunggu beberapa saat, gambar akan segera dikirim\n\n` +
+    `Contoh deskripsi: pemandangan danau di pagi hari\n\n` +
+    `Untuk panduan lebih lengkap, silakan ketik /help\n` +
+    `Website Resmi: https://tanya-ai-images.netlify.app/`,
     {parse_mode: 'Markdown'}
   );
 });
 
 bot.onText(/\/help/, (msg) => {
   bot.sendMessage(msg.chat.id,
-    `*📖 Panduan Tanya AI Image Bot*\n\n` +
-    `*1. Kirim Prompt*\nKetik deskripsi gambar sedetail mungkin.\nContoh: \`astronot naik kuda di bulan, cinematic lighting\`\n\n` +
-    `*2. Pilih Ukuran*\n⬛ 1:1 Kotak - untuk postingan IG\n📱 9:16 Portrait - untuk Story/Reels\n🖥️ 16:9 Landscape - untuk YouTube/Banner\n\n` +
-    `*3. Pilih Style*\n📸 Realistis | 🎌 Anime | 🎬 Cinematic | 💻 Digital Art\n\n` +
-    `*4. Pilih Model AI*\n⚡ Turbo - Hasil cepat\n💎 Flux HD - Kualitas terbaik\n🧠 GPT Image - Paling pintar baca prompt\n\n` +
-    `*Tips:* Semakin detail prompt Anda, semakin bagus hasilnya.\n\n` +
-    `Perintah lain: /about | /website`,
+    `*📖 Panduan Penggunaan Tanya AI Image Bot*\n\n` +
+    `*1. Mengirim Deskripsi*\nMohon tuliskan deskripsi gambar yang ingin Anda buat sedetail mungkin.\nContoh: \`astronot sedang menunggang kuda di bulan, dengan pencahayaan sinematik\`\n\n` +
+    `*2. Memilih Ukuran Gambar*\n⬛ 1:1 Kotak - Direkomendasikan untuk postingan media sosial\n📱 9:16 Portrait - Ideal untuk Story atau Reels\n🖥️ 16:9 Landscape - Cocok untuk banner atau thumbnail YouTube\n\n` +
+    `*3. Memilih Style Visual*\n📸 Realistis | 🎌 Anime | 🎬 Cinematic | 💻 Digital Art\n\n` +
+    `*4. Memilih Model AI*\n⚡ Turbo - Proses pembuatan lebih cepat\n💎 Flux HD - Kualitas gambar terbaik\n🧠 GPT Image - Memiliki pemahaman prompt yang sangat baik\n\n` +
+    `*Tips:* Semakin detail deskripsi yang Anda berikan, semakin baik pula hasil gambar yang akan dibuat.\n\n` +
+    `Perintah lainnya: /about | /website`,
     {parse_mode: 'Markdown'}
   );
 });
@@ -42,18 +61,18 @@ bot.onText(/\/help/, (msg) => {
 bot.onText(/\/about/, (msg) => {
   bot.sendMessage(msg.chat.id,
     `*🤖 Tentang Tanya AI Image Bot*\n\n` +
-    `Bot ini dibuat untuk memudahkan Anda membuat gambar AI langsung dari Telegram tanpa perlu buka website.\n\n` +
-    `*Fitur:*\n- 3 pilihan ukuran gambar\n- 4 pilihan style visual\n- 3 pilihan model AI\n- Gratis tanpa batas\n\n` +
-    `*Ditenagai oleh:* Pollinations AI\n` +
+    `Bot ini dirancang untuk memudahkan Anda dalam membuat karya visual berbasis AI langsung melalui Telegram, tanpa perlu mengunjungi website.\n\n` +
+    `*Fitur Unggulan:*\n- 3 Pilihan ukuran gambar\n- 4 Pilihan style visual\n- 3 Pilihan model AI\n- Dapat digunakan tanpa biaya\n\n` +
+    `*Didukung oleh:* Pollinations AI\n` +
     `*Website Resmi:* https://tanya-ai-images.netlify.app/\n\n` +
-    `Silakan kirim prompt pertama Anda untuk memulai.`,
+    `Silakan kirimkan deskripsi pertama Anda untuk memulai.`,
     {parse_mode: 'Markdown'}
   );
 });
 
 bot.onText(/\/website/, (msg) => {
   bot.sendMessage(msg.chat.id,
-    `Kunjungi website resmi kami untuk fitur lebih lengkap:\n\n🌐 https://tanya-ai-images.netlify.app/`
+    `Untuk fitur yang lebih lengkap, silakan kunjungi website resmi kami:\n\n🌐 https://tanya-ai-images.netlify.app/`
   );
 });
 
@@ -70,16 +89,15 @@ bot.on('message', (msg) => {
       ]
     }
   };
-  bot.sendMessage(chatId, `*Langkah 1/3:* Silakan pilih ukuran gambar:`, {parse_mode: 'Markdown',...opts});
+  bot.sendMessage(chatId, `*Langkah 1 dari 3*\n\nMohon pilih ukuran gambar yang Anda inginkan:`, {parse_mode: 'Markdown',...opts});
 });
 
 bot.on('callback_query', async (query) => {
   const chatId = query.message.chat.id;
   const data = query.data;
-  await bot.answerCallbackQuery(query.id);
 
   if (!userSession[chatId]) {
-    return bot.sendMessage(chatId, 'Sesi telah berakhir. Silakan kirim ulang deskripsi gambar Anda.');
+    return bot.sendMessage(chatId, 'Mohon maaf, sesi Anda telah berakhir. Silakan kirim ulang deskripsi gambar untuk memulai kembali.');
   }
 
   if (data.startsWith('size_')) {
@@ -92,7 +110,7 @@ bot.on('callback_query', async (query) => {
         ]
       }
     };
-    await bot.editMessageText(`*Langkah 2/3:* Silakan pilih style gambar:`, {chat_id: chatId, message_id: query.message.message_id, parse_mode: 'Markdown',...opts});
+    await bot.editMessageText(`*Langkah 2 dari 3*\n\nSilakan pilih style visual untuk gambar Anda:`, {chat_id: chatId, message_id: query.message.message_id, parse_mode: 'Markdown',...opts});
   }
   else if (data.startsWith('style_')) {
     userSession[chatId].style = data.split('_')[1];
@@ -104,7 +122,7 @@ bot.on('callback_query', async (query) => {
         ]
       }
     };
-    await bot.editMessageText(`*Langkah 3/3:* Silakan pilih model AI:`, {chat_id: chatId, message_id: query.message.message_id, parse_mode: 'Markdown',...opts});
+    await bot.editMessageText(`*Langkah 3 dari 3*\n\nTerakhir, silakan pilih model AI yang akan digunakan:`, {chat_id: chatId, message_id: query.message.message_id, parse_mode: 'Markdown',...opts});
   }
   else if (data.startsWith('model_')) {
     const model = data.split('_')[1];
@@ -112,20 +130,23 @@ bot.on('callback_query', async (query) => {
     const fullPrompt = encodeURIComponent(`${session.prompt}, ${session.style} style, highly detailed, 8k`);
     const [width, height] = session.size.split('x');
 
-    await bot.editMessageText(`⏳ *Sedang memproses gambar Anda...*\nMohon tunggu 10-30 detik.`, {chat_id: chatId, message_id: query.message.message_id, parse_mode: 'Markdown'});
+    await bot.editMessageText(`⏳ *Mohon tunggu sebentar...*\n\nGambar Anda sedang dalam proses pembuatan. Estimasi waktu 10-30 detik.`, {chat_id: chatId, message_id: query.message.message_id, parse_mode: 'Markdown'});
 
     const imageUrl = `https://image.pollinations.ai/prompt/${fullPrompt}?width=${width}&height=${height}&model=${model}&nologo=true&enhance=true`;
 
     try {
       await bot.sendPhoto(chatId, imageUrl, {
-        caption: `✅ *Gambar berhasil dibuat*\n\n*Prompt:* ${session.prompt}\n\nWebsite: https://tanya-ai-images.netlify.app/`,
+        caption: `✅ *Gambar Berhasil Dibuat*\n\n*Deskripsi:* ${session.prompt}\n\nTerima kasih telah menggunakan layanan kami.\nWebsite: https://tanya-ai-images.netlify.app/`,
         parse_mode: 'Markdown'
       });
     } catch (e) {
-      await bot.sendMessage(chatId, 'Maaf, terjadi kendala saat membuat gambar. Silakan coba lagi dengan model Turbo atau coba beberapa saat lagi.');
+      await bot.sendMessage(chatId, 'Mohon maaf, terjadi kendala saat proses pembuatan gambar. Silakan coba kembali beberapa saat lagi atau gunakan model Turbo untuk hasil yang lebih stabil.');
     }
     delete userSession[chatId];
   }
 });
 
-console.log('Bot aktif dan siap digunakan...');
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server aktif di port ${PORT}`);
+});

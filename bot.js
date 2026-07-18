@@ -1,5 +1,5 @@
 msg.chat.idrequire('dotenv').config();
-const TelegramBot = require('8934830014:AAF5SBo6BgYTHc7HOvGe__rtcxvGBSd6IFk');
+const TelegramBot = require('node-telegram-bot-api');
 const bot = new TelegramBot(process.env.TELEGRAM_TOKEN, {polling: true});
 const userSession = {};
 
